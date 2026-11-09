@@ -175,15 +175,9 @@ function EmptyState() {
         Nenhum produto cadastrado ainda
       </h2>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-        Assim que um produto for cadastrado, ele aparece aqui para receber
-        avaliações. Para cadastrar, envie o nome, a imagem e o link para a API:
+        Volte em breve: os produtos aparecem aqui assim que estiverem
+        disponíveis para avaliação.
       </p>
-      <pre className="mt-6 w-full max-w-lg overflow-x-auto rounded-lg bg-night px-4 py-3 text-left font-mono text-xs leading-relaxed text-night-foreground">
-        <code>{`POST /api/v1/create-product
-x-admin-key: <ADMIN_API_KEY>
-
-{ "name": "…", "imageUrl": "https://…", "externalLink": "https://…" }`}</code>
-      </pre>
     </div>
   );
 }

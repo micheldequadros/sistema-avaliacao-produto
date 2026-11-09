@@ -1,8 +1,15 @@
 import "server-only";
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import { ZodError, z } from "zod";
+import type { Session } from "@/server/auth/session";
 
-const t = initTRPC.create({
+export type Context = {
+  /** Headers da requisição (ex.: `x-admin-key`). */
+  headers: Headers;
+  session: Session | null;
+};
+
+const t = initTRPC.context<Context>().create({
   errorFormatter({ shape, error }) {
     const isValidationError =
       error.code === "BAD_REQUEST" && error.cause instanceof ZodError;
@@ -31,3 +38,14 @@ const t = initTRPC.create({
 
 export const router = t.router;
 export const publicProcedure = t.procedure;
+
+/** Exige sessão: sem ela responde 401. `ctx.session` deixa de ser nulo. */
+export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+  if (!ctx.session) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Você precisa estar logado.",
+    });
+  }
+  return next({ ctx: { ...ctx, session: ctx.session } });
+});

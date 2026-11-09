@@ -5,13 +5,13 @@ Spec: [specs/home.md](../specs/home.md). Contratos compartilhados: [00-orquestra
 ## Objetivo
 A home (`/`) lista publicamente todos os produtos, com scroll infinito. Cada card mostra imagem, nome e descrição curta. Clicar no nome leva para `/products/[id]`, página construída pelo plano de feedback. Também há um endpoint para cadastrar produtos manualmente.
 
-## Decisões (⚠️ precisam da sua aprovação)
-1. ⚠️ **Coluna `score: boolean`:** um "score" booleano num produto não tem significado claro, e a nota real vem das avaliações (`products_feedbacks.score`, de 1 a 5). **Recomendo remover.** A média do produto é calculada a partir dos feedbacks. Se você quiser manter o campo, ele entra como `score boolean not null default false`, sem uso na UI.
-2. ⚠️ **Coluna `image_url text`** (não está na spec): o `POST` recebe "imagem" e o card mostra imagem, então precisamos onde guardá-la. Recebemos uma **URL https** da imagem em vez de upload de arquivo. Upload para o Supabase Storage pode vir numa spec própria.
-3. ⚠️ **Rotas:** o tRPC não deixa uma mesma chave ser GET e POST, então:
+## Decisões (aprovadas)
+1. **Coluna `score: boolean`:** um "score" booleano num produto não tem significado claro, e a nota real vem das avaliações (`products_feedbacks.score`, de 1 a 5). **Decidido: a coluna não é criada.** A média do produto é calculada a partir dos feedbacks.
+2. **Coluna `image_url text`** (não está na spec): o `POST` recebe "imagem" e o card mostra imagem, então precisamos onde guardá-la. Recebemos uma **URL https** da imagem em vez de upload de arquivo. Upload para o Supabase Storage pode vir numa spec própria.
+3. **Rotas:** o tRPC não deixa uma mesma chave ser GET e POST, então:
    - `GET /api/v1/products`: procedure `products` (query). Atende a spec.
    - `POST /api/v1/create-product`: procedure `create-product` (mutation). A spec diz `POST /products`; esta é a adaptação.
-4. ⚠️ **Proteção do cadastro manual:** sem tela de admin, o endpoint ficaria aberto para qualquer pessoa. Proposta: exigir o header `x-admin-key` igual a `ADMIN_API_KEY`. Sem o header ou com valor errado: **401**.
+4. **Proteção do cadastro manual:** sem tela de admin, o endpoint ficaria aberto para qualquer pessoa. Proposta: exigir o header `x-admin-key` igual a `ADMIN_API_KEY`. Sem o header ou com valor errado: **401**.
 5. **Paginação por cursor** (`created_at desc, id desc`), não por offset: é estável enquanto produtos novos entram e rápida com índice. O cursor é opaco (base64 de `created_at|id`).
 6. **Imagem com `<img>`** (`loading="lazy"`, `aspect-ratio` fixo, fallback visual se falhar), porque as URLs podem vir de qualquer host e `next/image` exigiria liberar `remotePatterns` para tudo.
 

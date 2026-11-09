@@ -1,5 +1,5 @@
 {
-  "name": "study-back-end",
+  "name": "sistema-avaliacao-produto",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -21,6 +21,7 @@
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
     "date-fns": "^4.4.0",
+    "jose": "^6.2.17",
     "lucide-react": "^1.70.0",
     "nanoid": "^6.0.2",
     "next": "16.4.5",

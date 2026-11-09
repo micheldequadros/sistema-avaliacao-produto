@@ -1,4 +1,4 @@
-# Study
+# Sistema de Avaliação de Produtos
 
 Next.js (front-end + API tRPC) com Supabase. Arquitetura em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) e funcionalidades em [specs/](specs/).
 

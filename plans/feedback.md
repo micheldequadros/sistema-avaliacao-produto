@@ -9,10 +9,10 @@ A página `/products/[id]` mostra o produto, todas as avaliações dele e, no fi
 - **sign-in:** `getCurrentAccount()`, `protectedProcedure` e `?next=` no sign-in. Durante a Fase 1 os stubs retornam `null`, então o agente desenvolve o estado logado pelo contrato e o teste real acontece na integração.
 - **home:** a tabela `products` (FK) e o link do card para `/products/{id}`.
 
-## Decisões (⚠️ precisam da sua aprovação)
-1. ⚠️ **Rota:** procedure `product-feedbacks` (mutation), ou seja `POST /api/v1/product-feedbacks`. A spec só pede "um endpoint novo para adicionar comentários".
+## Decisões (aprovadas)
+1. **Rota:** procedure `product-feedbacks` (mutation), ou seja `POST /api/v1/product-feedbacks`. A spec só pede "um endpoint novo para adicionar comentários".
 2. **A listagem não tem endpoint:** a página é Server Component e lê produto e avaliações direto no servidor. É mais rápido (sem ida e volta extra) e a spec não pede GET. Depois de enviar, `router.refresh()` recarrega a lista.
-3. ⚠️ **Várias avaliações por pessoa por produto** são permitidas (a spec não restringe). Se preferir uma por pessoa, entra `unique (product_id, created_by)` e o endpoint responde **409**.
+3. **Uma avaliação por pessoa por produto:** isso evita spam e média distorcida. A garantia é a constraint `unique (product_id, created_by)` no banco; uma segunda tentativa responde **409**. Quem já avaliou vê, no lugar do formulário, o aviso "Você já avaliou este produto".
 4. **Comentário obrigatório**, de 3 a 2000 caracteres. A nota é um inteiro de 1 a 5, com `check` no banco.
 5. **O autor aparece com nome + sobrenome e avatar DiceBear** (`avatarUrl(created_by)`), via join com `accounts`. O email nunca é exposto.
 6. **A nota média e o total aparecem no topo do produto**, calculados a partir das avaliações já carregadas (sem consulta extra).
@@ -26,7 +26,8 @@ create table public.products_feedbacks (
   comment     text        not null,
   created_at  timestamptz not null default now(),
   created_by  text        not null references public.accounts(id) on delete cascade,
-  product_id  text        not null references public.products(id) on delete cascade
+  product_id  text        not null references public.products(id) on delete cascade,
+  constraint products_feedbacks_product_author_key unique (product_id, created_by)
 );
 create index products_feedbacks_product_created_idx
   on public.products_feedbacks (product_id, created_at desc);
@@ -40,6 +41,7 @@ create index products_feedbacks_product_created_idx
   - dados inválidos: **400**
   - insere com `id = nanoid()` e `created_by = ctx.session.accountId`
   - FK violada (código `23503`, produto inexistente): **404**
+  - unique violada (código `23505`, já avaliou): **409**, "Você já avaliou este produto."
   - sucesso: **200** `{ id }`
 - `src/server/products/get-product.ts` (server-only): `getProduct(id)` e `getProductFeedbacks(productId)`. As avaliações vêm em ordem decrescente de data, com join `accounts(first_name, last_name)`.
 
@@ -49,7 +51,8 @@ create index products_feedbacks_product_created_idx
   2. **Avaliações:** lista com avatar, nome, estrelas, data relativa (`date-fns` com locale `ptBR`, ex.: "há 2 dias") e o comentário. Estado vazio: "Nenhuma avaliação ainda. Seja o primeiro a avaliar."
   3. **Nova avaliação** (num `<Suspense>` próprio, porque lê a sessão):
      - **Deslogado:** um bloco com borda em violeta, "Entre para avaliar este produto", botão "Entrar" (`/auth/sign-in?next=/products/{id}`) e link "Criar conta".
-     - **Logado:** formulário client (`feedback-form.tsx`). React Hook Form + zod, **seletor de 5 estrelas acessível** (radio group nativo estilizado, com teclado por setas, foco visível e rótulos do tipo "3 de 5 estrelas", e prévia no hover), `textarea` com contador de caracteres, e botão "Publicar avaliação" com estado "Publicando...". Erro da API: `Alert` vermelho. Sucesso: limpa o formulário, `router.refresh()` e um aviso discreto de sucesso.
+     - **Logado e já avaliou** (o `created_by` aparece nas avaliações já carregadas): aviso "Você já avaliou este produto", e a avaliação da pessoa ganha o selo "Sua avaliação" na lista.
+     - **Logado e ainda não avaliou:** formulário client (`feedback-form.tsx`). React Hook Form + zod, **seletor de 5 estrelas acessível** (radio group nativo estilizado, com teclado por setas, foco visível e rótulos do tipo "3 de 5 estrelas", e prévia no hover), `textarea` com contador de caracteres, e botão "Publicar avaliação" com estado "Publicando...". Erro da API: `Alert` vermelho. Sucesso: limpa o formulário, `router.refresh()` e um aviso discreto de sucesso.
 - Componentes em `src/features/feedbacks/`: `star-rating.tsx` (exibição), `star-input.tsx` (seletor), `feedback-list.tsx`, `feedback-form.tsx`, `sign-in-prompt.tsx`.
 
 ## Arquivos
@@ -64,4 +67,4 @@ Editar e excluir avaliações, respostas a avaliações, paginação de avaliaç
 - Na integração:
   - deslogado: a página mostra produto, avaliações e o bloco de login, que volta para o produto depois do login
   - logado: enviar uma avaliação faz ela aparecer no topo da lista e atualiza a média
-  - `POST` sem cookie retorna 401; nota 0 ou 6 retorna 400; `productId` inexistente retorna 404; `/products/xyz` inexistente mostra a página 404
+  - `POST` sem cookie retorna 401; nota 0 ou 6 retorna 400; `productId` inexistente retorna 404; segunda avaliação no mesmo produto retorna 409; `/products/xyz` inexistente mostra a página 404

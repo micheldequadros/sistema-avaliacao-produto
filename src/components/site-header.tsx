@@ -16,7 +16,8 @@ export function SiteHeader() {
           aria-label="Página inicial"
           className="rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
-          <Brand />
+          {/* No mobile só o ícone: nome + "Entrar" + "Criar conta" não cabem. */}
+          <Brand nameClassName="sr-only sm:not-sr-only" />
         </Link>
 
         {/* Lê o cookie de sessão: com cacheComponents precisa ficar em <Suspense>. */}
@@ -42,14 +43,25 @@ async function AccountArea() {
 
   if (!account) {
     return (
-      <Link
-        href="/auth/sign-in"
-        className={buttonVariants({
-          className: "h-10 rounded-lg px-4 text-sm font-semibold",
-        })}
-      >
-        Entrar
-      </Link>
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        <Link
+          href="/auth/sign-in"
+          className={buttonVariants({
+            variant: "ghost",
+            className: "h-10 rounded-lg px-3 text-sm font-semibold sm:px-4",
+          })}
+        >
+          Entrar
+        </Link>
+        <Link
+          href="/auth/sign-up"
+          className={buttonVariants({
+            className: "h-10 rounded-lg px-3 text-sm font-semibold sm:px-4",
+          })}
+        >
+          Criar conta
+        </Link>
+      </div>
     );
   }
 

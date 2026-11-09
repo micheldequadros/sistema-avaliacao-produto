@@ -1,9 +1,16 @@
 import { cn } from "cn";
 
-/** Placeholder até a marca ser definida. Troque aqui e em todo o app. */
-export const BRAND_NAME = "Marca";
+/** Nome exibido no app (cabeçalho e títulos de página). */
+export const BRAND_NAME = "Avaliação de Produto";
 
-export function Brand({ className }: { className?: string }) {
+export function Brand({
+  className,
+  nameClassName,
+}: {
+  className?: string;
+  /** Classes do nome (ex.: `sr-only sm:not-sr-only` para só o ícone no mobile). */
+  nameClassName?: string;
+}) {
   return (
     <span
       className={cn(
@@ -24,7 +31,7 @@ export function Brand({ className }: { className?: string }) {
           <path d={STAR_PATH} />
         </svg>
       </span>
-      {BRAND_NAME}
+      <span className={nameClassName}>{BRAND_NAME}</span>
     </span>
   );
 }

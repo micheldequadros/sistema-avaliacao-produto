@@ -8,9 +8,9 @@ export default function PlatformLayout({
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-10">
-        {children}
-      </main>
+      {/* Sem container aqui: a home tem um hero de largura total. As demais
+          rotas definem o próprio container (ex.: products/layout.tsx). */}
+      <main className="flex flex-1 flex-col">{children}</main>
     </>
   );
 }

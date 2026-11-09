@@ -1,15 +1,73 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Brand } from "@/components/brand";
+import { buttonVariants } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { UserMenu } from "@/components/user-menu";
+import { getCurrentAccount } from "@/server/auth/current-account";
+import { getSession } from "@/server/auth/session";
 
-// STUB (Fase 0). Implementação: agente sign-in (área da conta à direita).
 export function SiteHeader() {
   return (
-    <header className="border-b bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Link href="/" aria-label="Página inicial">
+    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
+        <Link
+          href="/"
+          aria-label="Página inicial"
+          className="rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
           <Brand />
         </Link>
+
+        {/* Lê o cookie de sessão: com cacheComponents precisa ficar em <Suspense>. */}
+        <Suspense fallback={<AccountSkeleton />}>
+          <AccountArea />
+        </Suspense>
       </div>
     </header>
+  );
+}
+
+async function AccountArea() {
+  // `cookies()` fica fora do catch: no prerender ele rejeita de propósito e o
+  // Next precisa ver essa rejeição. Só a falha do banco é tratada aqui, para
+  // não derrubar a página inteira pelo cabeçalho.
+  const session = await getSession();
+  const account = session
+    ? await getCurrentAccount().catch((error: unknown) => {
+        console.error("[site-header] getCurrentAccount:", error);
+        return null;
+      })
+    : null;
+
+  if (!account) {
+    return (
+      <Link
+        href="/auth/sign-in"
+        className={buttonVariants({
+          className: "h-10 rounded-lg px-4 text-sm font-semibold",
+        })}
+      >
+        Entrar
+      </Link>
+    );
+  }
+
+  return <UserMenu account={account} />;
+}
+
+/** Mesmo tamanho do gatilho do menu da conta, para o cabeçalho não pular. */
+function AccountSkeleton() {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-10 items-center gap-3 md:pr-2 md:pl-1"
+    >
+      <Skeleton className="size-9 rounded-full" />
+      <div className="hidden w-36 gap-1.5 md:grid">
+        <Skeleton className="h-3.5 w-24" />
+        <Skeleton className="h-3 w-36" />
+      </div>
+    </div>
   );
 }

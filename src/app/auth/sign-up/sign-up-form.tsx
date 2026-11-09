@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { CircleAlert, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ComponentProps, useId } from "react";
 import { type FieldError, useForm } from "react-hook-form";
@@ -155,6 +156,16 @@ export function SignUpForm() {
           {signUp.isPending ? "Criando conta..." : "Criar conta"}
         </Button>
       </form>
+
+      <p className="text-center text-sm text-muted-foreground">
+        Já tem conta?{" "}
+        <Link
+          href="/auth/sign-in"
+          className="rounded-sm font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          Entrar
+        </Link>
+      </p>
     </section>
   );
 }

@@ -1,8 +1,9 @@
 import "server-only";
-import { TRPCError } from "@trpc/server";
+import { deleteSession } from "@/server/auth/session";
 import { publicProcedure } from "../init";
 
-// STUB (Fase 0). Implementação: agente sign-in.
-export const signOutProcedure = publicProcedure.mutation(() => {
-  throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Em construção." });
+// POST /api/v1/sign-out: apaga o cookie de sessão. Idempotente (200 mesmo sem sessão).
+export const signOutProcedure = publicProcedure.mutation(async () => {
+  await deleteSession();
+  return { ok: true as const };
 });

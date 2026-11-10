@@ -64,7 +64,12 @@ export function AuthPanel() {
       <div className="mt-12 hidden max-w-[34rem] items-center gap-4 rounded-2xl border border-white/10 bg-night-raised/80 p-6 lg:flex">
         <span className="flex shrink-0 gap-1" aria-hidden="true">
           {[0, 1, 2, 3, 4].map((i) => (
-            <svg key={i} viewBox="0 0 24 24" className="size-4 fill-star">
+            <svg
+              key={i}
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="size-4 fill-star"
+            >
               <path d={STAR_PATH} />
             </svg>
           ))}

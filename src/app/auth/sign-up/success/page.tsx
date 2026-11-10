@@ -87,7 +87,12 @@ function SuccessMark() {
     >
       <span className="absolute inset-0 rounded-2xl bg-primary/15 motion-safe:animate-ping motion-safe:[animation-iteration-count:1] motion-safe:[animation-duration:1.2s]" />
       <span className="relative grid size-16 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-[0_10px_30px_-10px_var(--primary)]">
-        <svg viewBox="0 0 24 24" className="size-8" fill="currentColor">
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          className="size-8"
+          fill="currentColor"
+        >
           <path d={STAR_PATH} />
         </svg>
       </span>

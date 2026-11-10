@@ -8,14 +8,19 @@ Next.js (front-end + API tRPC) com Supabase. Arquitetura em [docs/ARCHITECTURE.m
 2. Copie `.env.example` para `.env.local` e preencha:
    - `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`: dados do seu projeto Supabase.
    - `SESSION_SECRET`: 32+ caracteres aleatórios. Gere com `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`.
+   - `OPENAI_API_KEY`: usada pelo agente Mastra que resume as avaliações (`openai/gpt-4o-mini`). Sem ela (ou sem créditos), o resumo apenas não aparece.
 3. Aplique as migrations de [database/migrations](database/migrations) (veja [database/README.md](database/README.md)). Opcional: rode [database/seed-products.sql](database/seed-products.sql) para ter 30 produtos de teste.
 4. Rode: `npm run dev` e acesse http://localhost:3000
 
 ## Páginas
 
 - `/`: produtos, públicos, com scroll infinito
-- `/products/[id]`: detalhes, avaliações e formulário de nova avaliação (só para quem está logado)
+- `/products/[id]`: detalhes, resumo por IA das avaliações (a partir de 3), avaliações e formulário de nova avaliação (só para quem está logado)
 - `/auth/sign-up` e `/auth/sign-in`: criação de conta e login (aceita `?next=/caminho`)
+
+## Resumo por IA
+
+Agente Mastra em `src/server/ai/product-summary-agent.ts` (modelo `openai/gpt-4o-mini`). O resumo fica salvo em `products_ai_summaries` e é regenerado em segundo plano (`after()`) quando chega uma avaliação nova, ou quando a página do produto nota que ele está desatualizado. A página nunca espera a IA: mostra o último resumo salvo, ou nada.
 
 ## API (`/api/v1`, tRPC)
 

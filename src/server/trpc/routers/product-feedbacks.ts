@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 import { createFeedbackSchema } from "@/features/feedbacks/schema";
 import { getSupabase } from "@/server/db/supabase";
+import { scheduleProductAiSummary } from "@/server/products/ai-summary";
 import { protectedProcedure } from "../init";
 
 const FOREIGN_KEY_VIOLATION = "23503";
@@ -50,6 +51,9 @@ export const productFeedbacksProcedure = protectedProcedure
         cause: error,
       });
     }
+
+    // Atualiza o resumo por IA depois da resposta, sem atrasar quem avaliou.
+    scheduleProductAiSummary(input.productId, { force: true });
 
     return { id };
   });

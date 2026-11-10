@@ -87,6 +87,38 @@ export type Database = {
           },
         ];
       };
+      products_ai_summaries: {
+        Row: {
+          product_id: string;
+          summary: string;
+          highlights: string[];
+          concerns: string[];
+          feedbacks_count: number;
+          model: string;
+          generated_at: string;
+        };
+        Insert: {
+          product_id: string;
+          summary: string;
+          highlights?: string[];
+          concerns?: string[];
+          feedbacks_count: number;
+          model: string;
+          generated_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["products_ai_summaries"]["Insert"]
+        >;
+        Relationships: [
+          {
+            foreignKeyName: "products_ai_summaries_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: true;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;

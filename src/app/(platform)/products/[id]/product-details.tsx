@@ -5,12 +5,18 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AiSummaryCard } from "@/features/feedbacks/ai-summary-card";
 import {
   FeedbackComposer,
   OwnFeedbackMarker,
 } from "@/features/feedbacks/feedback-composer";
 import { FeedbackList } from "@/features/feedbacks/feedback-list";
 import { formatScore, StarRating } from "@/features/feedbacks/star-rating";
+import {
+  getProductAiSummary,
+  isSummaryStale,
+  scheduleProductAiSummary,
+} from "@/server/products/ai-summary";
 import {
   getProduct,
   getProductFeedbacks,
@@ -30,9 +36,10 @@ export async function ProductDetails({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [product, feedbacks] = await Promise.all([
+  const [product, feedbacks, aiSummary] = await Promise.all([
     getProduct(id),
     getProductFeedbacks(id),
+    getProductAiSummary(id),
   ]);
   if (!product) notFound();
 
@@ -42,9 +49,19 @@ export async function ProductDetails({
     ? feedbacks.reduce((sum, f) => sum + f.score, 0) / count
     : 0;
 
+  // Resumo ausente ou desatualizado: gera depois da resposta. Até lá, mostra
+  // o último salvo (ou nada, se ainda não existe).
+  if (isSummaryStale(aiSummary, count)) scheduleProductAiSummary(product.id);
+
   return (
     <>
       <ProductHero product={product} average={average} count={count} />
+
+      {aiSummary && (
+        <div className="mt-14 max-w-3xl sm:mt-16">
+          <AiSummaryCard summary={aiSummary} />
+        </div>
+      )}
 
       <section
         id="avaliacoes"

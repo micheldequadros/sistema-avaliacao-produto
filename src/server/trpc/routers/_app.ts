@@ -15,7 +15,7 @@ export const appRouter = router({
   "sign-out": signOutProcedure,
   // GET /api/v1/products
   products: productsProcedure,
-  // POST /api/v1/create-product (header x-admin-key)
+  // POST /api/v1/create-product (público)
   "create-product": createProductProcedure,
   // POST /api/v1/product-feedbacks (logado)
   "product-feedbacks": productFeedbacksProcedure,

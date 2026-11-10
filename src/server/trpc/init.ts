@@ -4,7 +4,7 @@ import { ZodError, z } from "zod";
 import type { Session } from "@/server/auth/session";
 
 export type Context = {
-  /** Headers da requisição (ex.: `x-admin-key`). */
+  /** Headers da requisição. */
   headers: Headers;
   session: Session | null;
 };

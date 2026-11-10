@@ -11,7 +11,7 @@ A home (`/`) lista publicamente todos os produtos, com scroll infinito. Cada car
 3. **Rotas:** o tRPC não deixa uma mesma chave ser GET e POST, então:
    - `GET /api/v1/products`: procedure `products` (query). Atende a spec.
    - `POST /api/v1/create-product`: procedure `create-product` (mutation). A spec diz `POST /products`; esta é a adaptação.
-4. **Proteção do cadastro manual:** sem tela de admin, o endpoint ficaria aberto para qualquer pessoa. Proposta: exigir o header `x-admin-key` igual a `ADMIN_API_KEY`. Sem o header ou com valor errado: **401**.
+4. **Proteção do cadastro manual** (substituída depois: a pedido, o endpoint ficou público, com campos `name`, `link` e `image`): sem tela de admin, o endpoint ficaria aberto para qualquer pessoa. Proposta: exigir o header `x-admin-key` igual a `ADMIN_API_KEY`. Sem o header ou com valor errado: **401**.
 5. **Paginação por cursor** (`created_at desc, id desc`), não por offset: é estável enquanto produtos novos entram e rápida com índice. O cursor é opaco (base64 de `created_at|id`).
 6. **Imagem com `<img>`** (`loading="lazy"`, `aspect-ratio` fixo, fallback visual se falhar), porque as URLs podem vir de qualquer host e `next/image` exigiria liberar `remotePatterns` para tudo.
 

@@ -21,10 +21,12 @@ export const createProductSchema = z.object({
     .max(500, "Máximo de 500 caracteres")
     .optional()
     .transform((value) => value || undefined),
-  imageUrl: z
-    .url({ protocol: /^https$/, error: "Informe uma URL https da imagem" })
+  /** URL da imagem (coluna `image_url`). */
+  image: z
+    .url({ protocol: /^https?$/, error: "Informe uma URL http(s) da imagem" })
     .max(2048, "URL muito longa"),
-  externalLink: z
+  /** Página do produto fora do app (coluna `external_link`). */
+  link: z
     .url({
       protocol: /^https?$/,
       error: "Informe uma URL http(s) do produto",
